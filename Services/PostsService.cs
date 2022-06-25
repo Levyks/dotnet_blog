@@ -1,21 +1,25 @@
-﻿using DotNetBlog.Models; 
+﻿using DotNetBlog.Models;
+using DotNetBlog.Data;
 
 namespace DotNetBlog.Services
 {
     public class PostsService: IPostsService
     {
-        static private List<Post> _posts = new List<Post>();
+        private readonly DataContext _context;
+
+        public PostsService(DataContext context)
+        {
+            _context = context;
+        }
 
         public async Task<List<Post>> GetPosts()
         {
-            return _posts;
+            return await _context.Posts.ToListAsync();
         }
 
         public async Task<Post?> GetPost(int id)
         {
-            var post = _posts.Find(_post => _post.Id == id);
-
-            return post;
+            return await _context.Posts.FindAsync(id);;
         }
 
         public async Task<Post> AddPost(PostInputDTO dto)
@@ -25,7 +29,8 @@ namespace DotNetBlog.Services
                 content: dto.Content
             );
 
-            _posts.Add(post);
+            _context.Posts.Add(post);
+            await _context.SaveChangesAsync();
 
             return post;
         }
@@ -35,7 +40,15 @@ namespace DotNetBlog.Services
             post.Title = dto.Title;
             post.Content = dto.Content;
 
+            await _context.SaveChangesAsync();
+
             return post;
+        }
+
+        public async Task DeletePost(Post post)
+        {
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
         }
     }
 } 

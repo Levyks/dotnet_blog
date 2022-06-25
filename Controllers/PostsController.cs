@@ -26,16 +26,15 @@ namespace DotNetBlog.Controllers
         public async Task<ActionResult<Post>> GetPost(int id)
         {
             var post = await _postsService.GetPost(id);
-            return post != null ?
-                Ok(post) :
-                NotFound();
+            if (post == null) return NotFound();
+            return Ok(post);
         }
 
         [HttpPost]
         public async Task<ActionResult<Post>> AddPost(PostInputDTO dto)
         {
             var post = await _postsService.AddPost(dto);
-            return Ok(post);
+            return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
         }
 
         [HttpPut("{id}")]
@@ -45,6 +44,15 @@ namespace DotNetBlog.Controllers
             if (post == null) return NotFound();
             await _postsService.UpdatePost(post, dto);
             return Ok(post);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeletePost(int id)
+        {
+            var post = await _postsService.GetPost(id);
+            if (post == null) return NotFound();
+            await _postsService.DeletePost(post);
+            return NoContent();
         }
 
     }

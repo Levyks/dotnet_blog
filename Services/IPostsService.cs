@@ -11,5 +11,7 @@ namespace DotNetBlog.Services
         public Task<Post> AddPost(PostInputDTO dto);
 
         public Task<Post> UpdatePost(Post post, PostInputDTO dto);
+        
+        public Task DeletePost(Post post);
     }
 }
